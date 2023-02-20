@@ -1,0 +1,7 @@
+<h1><%= message %></h1>
+<h2><%= error.status %></h2>
+<pre><%= error.stack %></pre>
+<% if (locals.outcome) { %>
+<h2><%= outcome.resourceType %></h2>
+<p><%= outcome.issue[0].diagnostics %></p>
+<% } %>

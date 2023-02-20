@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <h1><%= title %></h1>
+
+      <form action="/task" method="post">
+        <div class="form-group row">
+          <label for="patient-name" class="col-sm-2 col-form-label">Patient</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control-plaintext" id="patient-name" readonly value="<%= patient.name[0].family %>, <%= patient.name[0].given[0] %>">
+            <input type="text" class="form-control-plaintext" hidden value="<%= patient.id %>" name="patient_id" >
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="practitioner-id" class="col-sm-2 col-form-label">Requesting practitioner</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control-plaintext" id="practitioner-name" readonly value="<%= practitioner.name[0].family %>, <%= practitioner.name[0].given[0] %>" >
+            <input type="text" class="form-control-plaintext" id="practitioner-role-identifier-provider" readonly value="<%= practitioner_role.identifier[0].value %>" >
+            <input type="text" class="form-control-plaintext" hidden value="<%= practitioner_role.id %>" name="placer_practitionerrole_id">
+            <input type="text" class="form-control-plaintext" id="placer-organization-name" readonly value="<%= placer_organization.name %>" >
+            <input type="text" class="form-control-plaintext" hidden value="<%= placer_organization.identifier[0].value %>" name="placer_organization_hpio">
+            <input type="text" class="form-control-plaintext" hidden value="<%= placer_organization.name %>" name="placer_organization_name">
+          </div>
+        </div>
+
+        <div class="form-group row mb-2">
+          <label for="filler-organization-id" class="col-sm-2 col-form-label">Imaging Provider</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control-plaintext" id="filler-organization-id" hidden value="<%= filler_organization.id %>" name="filler_organization_id">
+            <input type="text" class="form-control-plaintext" id="filler-organization-name" readonly value="<%= filler_organization.name %>">
+          </div>
+        </div>
+
+        <div class="form-group row mb-2">
+          <label for="servicerequest-id" class="col-sm-2 col-form-label">Service request</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control-plaintext" id="servicerequest-id" hidden value="<%= servicerequest.id %>" name="servicerequest_id">
+            <input type="text" class="form-control-plaintext" readonly value="<%= servicerequest.requisition.value %>" name="placer_group_identifier">
+            <input type="text" class="form-control-plaintext" readonly value="<%= servicerequest.authoredOn %>" name="authoredOn">
+            <input type="text" class="form-control-plaintext" hidden value="<%= servicerequest.performerType.coding[0].code %>" name="performerType_code">
+            <input type="text" class="form-control-plaintext" readonly value="<%= servicerequest.performerType.coding[0].display %>" name="performerType_type">
+            <input type="text" class="form-control-plaintext" readonly value="<%= servicerequest.code.coding[0].display %>" name="description">
+          </div>
+        </div>
+
+        <div class="form-group row mb-2">
+          <label for="servicerequest-id" class="col-sm-2 col-form-label"></label>
+        <button type="submit" class="btn btn-primary col-sm-2">Create Task</button>
+        </div>
+      </form>
+
+    </div> <!-- container -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+  </body>
+</html>
