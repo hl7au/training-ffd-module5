@@ -11,14 +11,8 @@ function buildTask(data) {
   const task = {
     resourceType: "Task",
 
-    // TODO: groupIdentifier
-    //   placer_organization_name => assigner
-    //   placer_organization_hpio => system
-    //   placer_group_identifier => value
+    // groupIdentifier
     groupIdentifier: {
-      assigner: { 
-        display: data.placer_organization_name },  
-      system: "http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/" + data.placer_organization_hpio,  
       type: {
         coding: [{
           code: "PGN", 
@@ -26,64 +20,41 @@ function buildTask(data) {
           system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         }]
       },
-      value: data.placer_group_identifier
+      value: data.placer_group_identifier,
+      system: "http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/" + data.placer_organization_hpio,  
+      assigner: { 
+        display: data.placer_organization_name 
+      }  
     },
 
-    // status
-    status: data.status,
+    // TODO: status { status }
 
-    // intent
-    intent: "order",
+    // TODO: intent { 'requested' }
 
-    // TODO: priority
-    priority: data.priority,
+    // TODO: priority { priority }
 
-    // TODO: code
-    code: {
-      coding: [
-        {
-          code: "fulfill",
-          display: "Fulfill the focal request",
-          system: "http://hl7.org/fhir/CodeSystem/task-code"
-        }
-      ]
-    },
+    // TODO: code { code: 'fulfill', display: 'Fulfill the focal request', system: 'http://hl7.org/fhir/CodeSystem/task-code' }
 
-    // TODO: description
-    description: data.description,
+    // TODO: description { description }
 
-    // TODO: focus
-    focus: {
-      reference: "ServiceRequest/" + data.servicerequest_id
-    },
+    // TODO: focus { servicerequest_id }
 
-    // TODO: for
-    for: {
-      reference: "Patient/" + data.patient_id
-    },
+    // TODO: for { patient_id }
 
-    // TODO: authoredOn
-    authoredOn: data.authoredOn,
+    // TODO: authoredOn { authoredOn }
 
-    // TODO: requester
-    requester: {
-      reference: "PractitionerRole/" + data.placer_practitionerrole_id
-    },
+    // TODO: requester { placer_practitionerrole_id }
 
-    // TODO: owner
-    owner: {
-      reference: "Organization/" + data.filler_organization_id
-    }
+    // TODO: owner { filler_organization_id }
   }
 
+  // conditionally populate when performerType provided
   if (data.performerType_code) {
-      // TODO: performerType
+      // TODO: performerType { performerType_code, performerType_display }
       task.performerType = [
         {
           coding: [
             {
-              code: data.performerType_code,
-              display: data.performerType_display,
               system: "http://snomed.info/sct"
             }
           ]
