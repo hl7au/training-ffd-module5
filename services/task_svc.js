@@ -110,8 +110,42 @@ async function updateResource(app, resource) {
   }
 }
 
+async function validateResource(app, resource) {
+  if (resource === null) throw ("resource must not be null");
+  if (resource.id !== undefined) 
+    throw ("resource id must be undefined");
+  if (resource.resourceType === undefined || resource.resourceType != resourceType) 
+    throw (`resource resourceType must be '${resourceType}'`);
+
+  const req_config = { 
+    baseURL: app.locals.fhir_base_url,
+    headers: { 'Accept': 'application/json' }};
+  
+  const url = `${resourceType}/$validate`;
+  console.log(`Validating ${resourceType}`);
+
+  try {
+    console.log(`POST ${req_config.baseURL}/${url}`);
+
+    const response = await http.post(url, resource, req_config);
+    console.log(`${response.status} ${response.statusText}`);
+    
+    console.log(JSON.stringify(response.data, null, 2));
+
+    return response.data;
+  } 
+  catch (error) {
+    if (error.response !== undefined) {
+      console.log(`${error.response.status} ${error.response.statusText}`);
+      console.log(JSON.stringify(error.response.data, null, 2));
+    }
+    throw( error );
+  }
+}
+
 module.exports = {
   read: readResource,
   create: createResource,
-  update: updateResource  
+  update: updateResource,
+  validate: validateResource
 }

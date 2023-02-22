@@ -9,69 +9,70 @@ const task_svc = require('../services/task_svc');
 
 function buildTask(data) {
   const task = {
-    "resourceType": "Task",
+    resourceType: "Task",
 
     // TODO: groupIdentifier
     //   placer_organization_name => assigner
     //   placer_organization_hpio => system
     //   placer_group_identifier => value
-    "groupIdentifier": {
-      "assigner": { "display": data.placer_organization_name },  
-      "system": `http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/${data.placer_organization_hpio}`,  
-      "type": {
-        "coding": [{
-          "code": "PGN", 
-          "display": "Placer Group Identifier",
-          "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+    groupIdentifier: {
+      assigner: { 
+        display: data.placer_organization_name },  
+      system: "http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/" + data.placer_organization_hpio,  
+      type: {
+        coding: [{
+          code: "PGN", 
+          display: "Placer Group Identifier",
+          system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         }]
       },
-      "value": data.placer_group_identifier
+      value: data.placer_group_identifier
     },
 
     // status
-    "status": data.status,
+    status: data.status,
 
     // intent
-    "intent": "order",
+    intent: "order",
 
     // TODO: priority
-    "priority": data.priority,
+    priority: data.priority,
 
     // TODO: code
-    "code": {
-      "coding": [
+    code: {
+      coding: [
         {
-          "code": "fulfill",
-          "display": "Fulfill the focal request",
-          "system": "http://hl7.org/fhir/CodeSystem/task-code"
+          code: "fulfill",
+          display: "Fulfill the focal request",
+          system: "http://hl7.org/fhir/CodeSystem/task-code"
         }
       ]
     },
 
     // TODO: description
-    "description": data.description,
+    description: data.description,
 
     // TODO: focus
-    "focus": {
-      "reference": `ServiceRequest/${data.servicerequest_id}`
+    focus: {
+      reference: "ServiceRequest/" + data.servicerequest_id
     },
 
     // TODO: for
-    "for": {
-      "reference": `Patient/${data.patient_id}`
+    for: {
+      reference: "Patient/" + data.patient_id
     },
 
     // TODO: authoredOn
-    "authoredOn": data.authoredOn,
+    authoredOn: data.authoredOn,
 
     // TODO: requester
-    "requester": {
-      "reference": `PractitionerRole/${data.placer_practitionerrole_id}`
+    requester: {
+      reference: "PractitionerRole/" + data.placer_practitionerrole_id
     },
 
     // TODO: owner
-    "owner": {
-      "reference": `Organization/${data.filler_organization_id}`
+    owner: {
+      reference: "Organization/" + data.filler_organization_id
     }
   }
 
@@ -79,11 +80,11 @@ function buildTask(data) {
       // TODO: performerType
       task.performerType = [
         {
-          "coding": [
+          coding: [
             {
-              "code": data.performerType_code,
-              "display": data.performerType_display,
-              "system": "http://snomed.info/sct"
+              code: data.performerType_code,
+              display: data.performerType_display,
+              system: "http://snomed.info/sct"
             }
           ]
         }
@@ -112,6 +113,7 @@ router.get('/', async function(req, res, next) {
       res.render('task-create', { title: 'Service Fulfilment Task', patient, practitioner, practitioner_role, placer_organization, filler_organization, servicerequest });
     }
     else {
+      console.log("session.patient_id is not set, session cookie may not be getting saved");
       res.redirect("/");  // initialise app
     }
   }
@@ -138,6 +140,7 @@ router.post('/', async function(req, res, next) {
     const task = buildTask(data);
 
     console.log(task);
+    const validate_result = await task_svc.validate(req.app, task);
     const result = await task_svc.create(req.app, task);
 
     res.redirect(`/task/${result.id}`);

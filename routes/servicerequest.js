@@ -8,73 +8,82 @@ const servicerequest_svc = require('../services/servicerequest_svc');
 
 function buildServiceRequest(data) {
   const servicerequest = {
-    "resourceType": "ServiceRequest",
-    "meta": {
-      "profile": [ "http://hl7.org.au/fhir/StructureDefinition/au-diagnosticrequest" ]
+    resourceType: "ServiceRequest",
+    meta: {
+      profile: [ "http://hl7.org.au/fhir/StructureDefinition/au-diagnosticrequest" ]
     },
 
-    // TODO: requisition
-    //   placer_organization_name => assigner
-    //   placer_organization_hpio => system
-    //   placer_group_identifier => value
-    "requisition": {        
-      "assigner": { "display": data.placer_organization_name },  
-      "system": `http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/${data.placer_organization_hpio}`,  
-      "type": {
-        "coding": [{
-          "code": "PGN", 
-          "display": "Placer Group Identifier",
-          "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+    // requisition
+    requisition: {        
+      type: {
+        coding: [{
+          code: "PGN", 
+          display: "Placer Group Identifier",
+          system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         }]
       },
-      "value": data.placer_group_identifier
+
+      value: data.placer_group_identifier,
+      system: 'http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/' + data.placer_organization_hpio,
+      assigner: {
+        display: data.placer_organization_name 
+      }
     },
+
     // TODO: status
-    "status": data.status,
+    status: data.status,
+
     // TODO: intent
-    "intent": "order",
+    intent: "order",
+
     // TODO: category
-    "category": [
+    category: [
       {
-        "coding": [
+        coding: [
           {
-            "code": data.category_code,
-            "display": data.category_display,
-            "system": "http://snomed.info/sct"
+            code: data.category_code,
+            display: data.category_display,
+            system: "http://snomed.info/sct"
           }
         ]
       }
     ],
+
     // TODO: priority
-    "priority": data.priority,
+    priority: data.priority,
+
     // TODO: code
-    "code": {
-      "coding": [
+    code: {
+      coding: [
         {
-        "code": data.request_code_code,                    
-        "display": data.request_code_display,
-        "system": "http://snomed.info/sct"
+          code: data.request_code_code,                    
+          display: data.request_code_display,
+          system: "http://snomed.info/sct"
         }
       ]
     },
+
     // TODO subject
-    "subject": {
-      "reference": `Patient/${data.patient_id}`
+    subject: {
+      reference: "Patient/" + data.patient_id
     },
+
     // TODO authoredOn
-    "authoredOn": data.authoredOn,
+    authoredOn: data.authoredOn,
+    
     // TODO requester 
     //   placer_practitionerrole_id
-    "requester": {
-      "reference": `PractitionerRole/${data.placer_practitionerrole_id}`
+    requester: {
+      reference: "PractitionerRole/" + data.placer_practitionerrole_id
     },
+
     // performerType
-    "performerType": {
-      "coding": [
+    performerType: {
+      coding: [
         {
-        "code": data.performerType_code,
-        "display": data.performerType_display,
-        "system": "http://snomed.info/sct"
+        code: data.performerType_code,
+        display: data.performerType_display,
+        system: "http://snomed.info/sct"
         }
       ]
     }    
@@ -83,14 +92,14 @@ function buildServiceRequest(data) {
   // reasonCode
   if (data.reasonCode_code) {
     servicerequest.reasonCode = [
-      {
-        "coding": [
+      {        
+        coding: [
           {
-            "code": data.reasonCode_code,
-            "display": data.reasonCode_display,
-            "system": "http://snomed.info/sct"
+            code: data.reasonCode_code,
+            display: data.reasonCode_display,
+            system:  "http://snomed.info/sct"
           }
-        ]
+        ]  
       }
     ]
   }
@@ -111,6 +120,7 @@ router.get('/', async function(req, res, next) {
     res.render('servicerequest-create', { title: 'New Service Request', patient, practitioner, practitioner_role, placer_organization, filler_organization });
   }
   else {
+    console.log("session.patient_id is not set, session cookie may not be getting saved");
     res.redirect("/");  // initialise app
   }
 });
@@ -119,21 +129,11 @@ router.post('/', async function(req, res, next) {
   const data = req.body;
 
   try {
-    // requisition placer group identifier
-    data.placer_group_identifier = `ORD${data.placer_organization_hpio.substring(11)}-${String(Math.floor(Math.random() * 1000000)).padStart(5, "0")}`;
+    if (data.request_code === undefined) throw ("Service requested is required");
 
-    // request code coding
-    if ( data.request_code !== '')
-    {
-      const service_parts =  data.request_code.split(' ');
-      data.request_code_code = service_parts[0];
-      // trim double quotes from start and end
-      data.request_code_display = service_parts[1].replace(/^"(.+(?="$))"$/, '$1');
-    }
-    else {
-      throw ("Service requested is required");
-    }
-    
+    // requisition placer group identifier
+    data.placer_group_identifier = GeneratePlacerGroupId(data.placer_organization_hpio);
+
     // status
     data.status = "active";
     
@@ -141,6 +141,11 @@ router.post('/', async function(req, res, next) {
     data.category_code = "363679005";
     data.category_display = "Imaging";
 
+    // request code coding
+    const request_code = SplitCoding(data.request_code);
+    data.request_code_code = request_code.code;
+    data.request_code_display = request_code.display;
+    
     // performerType
     data.performerType_code = "78729002";
     data.performerType_display = "Diagnostic radiologist";
@@ -151,6 +156,7 @@ router.post('/', async function(req, res, next) {
     console.log(data);
 
     const servicerequest = buildServiceRequest(data);
+    const validate_result = await servicerequest_svc.validate(req.app, servicerequest);
     const result = await servicerequest_svc.create(req.app, servicerequest);
 
     res.redirect(`/servicerequest/${result.id}`);
@@ -173,5 +179,21 @@ router.get('/:id', async function(req, res, next) {
   } 
 });
 
+function GeneratePlacerGroupId(placer_organization_hpio) {
+  return `ORD${placer_organization_hpio.substring(11)}-${String(Math.floor(Math.random() * 1000000)).padStart(5, "0")}`;
+}
+
+function SplitCoding(request_code)     {
+  if ( request_code !== '') {
+    const service_parts =  request_code.split(' ');  
+    const request_code_code = service_parts[0];
+    // trim double quotes from start and end
+    const request_code_display = service_parts[1].replace(/^"(.+(?="$))"$/, '$1');
+
+    return { code: request_code_code, display: request_code_display };
+  }
+  else
+    return undefined;
+}
 
 module.exports = router;

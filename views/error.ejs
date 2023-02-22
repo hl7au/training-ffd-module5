@@ -2,6 +2,8 @@
 <h2><%= error.status %></h2>
 <pre><%= error.stack %></pre>
 <% if (locals.outcome) { %>
-<h2><%= outcome.resourceType %></h2>
-<p><%= outcome.issue[0].diagnostics %></p>
+  <h2><%= outcome.resourceType %></h2>
+  <% outcome.issue.forEach(function(issue) { %>
+    <p><%= issue.severity %> (<%= issue.code %>): <%= issue.diagnostics %><br/><%= issue.location %></p>
+  <% }); %> 
 <% } %>
