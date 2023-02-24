@@ -21,24 +21,24 @@ router.get('/', async function(req, res, next) {
   data.practitioner_role_placer.organization.reference = "Organization/" + data.organization_placer.id;
   
   try {
-
-    // ensure patient exists and retieve from server 
-    let patient = await patient_svc.readPatient(req.app, data.patient.id);
-    patient = patient ?? await patient_svc.updatePatient(req.app, data.patient);
-    req.session.patient_id = patient.id;
-
-    // ensure placer practitioner exists and retrieve from server
-    let practitioner = await practitioner_svc.read(req.app, data.practitioner_placer.id);
-    practitioner = practitioner ?? await practitioner_svc.update(req.app, data.practitioner_placer);
-    req.session.practitioner_id = practitioner.id;
+    console.log("Filler Organization");
+    let filler_organization = await organization_svc.read(req.app, data.organization_filler.id);
+    filler_organization = filler_organization ?? await organization_svc.update(req.app, data.organization_filler);
+    req.session.filler_organization_id = filler_organization.id;
 
     console.log("Placer Organization");
     let placer_organization = await organization_svc.read(req.app, data.organization_placer.id);
     placer_organization = placer_organization ?? await organization_svc.update(req.app, data.organization_placer);
     req.session.placer_organization_id = placer_organization.id;
 
-    console.log("Placer PractitionerRole");
+    // ensure placer practitioner exists and retrieve from server
+    console.log("Placer Practitioner");
+    let practitioner = await practitioner_svc.read(req.app, data.practitioner_placer.id);
+    practitioner = practitioner ?? await practitioner_svc.update(req.app, data.practitioner_placer);
+    req.session.practitioner_id = practitioner.id;
+
     // ensure placer practitioner role exists and retrieve from server
+    console.log("Placer PractitionerRole");
     let practitioner_role = await practitionerrole_svc.read(req.app, data.practitioner_role_placer.id);
     if (!practitioner_role) {
       practitioner_role = await practitionerrole_svc.update(req.app, data.practitioner_role_placer);
@@ -51,10 +51,11 @@ router.get('/', async function(req, res, next) {
     }
     req.session.practitioner_role_id = practitioner_role.id;
 
-    console.log("Filler Organization");
-    let filler_organization = await organization_svc.read(req.app, data.organization_filler.id);
-    filler_organization = filler_organization ?? await organization_svc.update(req.app, data.organization_filler);
-    req.session.filler_organization_id = filler_organization.id;
+    // ensure patient exists and retieve from server 
+    console.log("Patient");
+    let patient = await patient_svc.readPatient(req.app, data.patient.id);
+    patient = patient ?? await patient_svc.updatePatient(req.app, data.patient);
+    req.session.patient_id = patient.id;
 
     res.render('index', { title: 'FHIR Workflow', patient, practitioner, practitioner_role, placer_organization, filler_organization });
   }
