@@ -11,14 +11,8 @@ function buildTask(data) {
   const task = {
     resourceType: "Task",
 
-    // TODO: groupIdentifier
-    //   placer_organization_name => assigner
-    //   placer_organization_hpio => system
-    //   placer_group_identifier => value
+    // groupIdentifier
     groupIdentifier: {
-      assigner: { 
-        display: data.placer_organization_name },  
-      system: "http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/" + data.placer_organization_hpio,  
       type: {
         coding: [{
           code: "PGN", 
@@ -26,13 +20,16 @@ function buildTask(data) {
           system: "http://terminology.hl7.org/CodeSystem/v2-0203"
         }]
       },
-      value: data.placer_group_identifier
+      value: data.placer_group_identifier,
+      system: "http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/" + data.placer_organization_hpio,  
+      assigner: { 
+        display: data.placer_organization_name }
     },
 
-    // status
+    // TODO: status
     status: data.status,
 
-    // intent
+    // TODO: intent
     intent: "order",
 
     // TODO: priority
