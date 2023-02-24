@@ -28,7 +28,7 @@ app.use(session(sess));
 // *********************************
 // App Authorization Client ID
 
-app.locals.fhir_base_url = 'https://launch.smarthealthit.org/v/r4/fhir';
+app.locals.fhir_base_url = 'https://hl7-hapi-au-training-server.australiaeast.cloudapp.azure.com/fhir';
 
 // *********************************
 

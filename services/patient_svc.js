@@ -18,7 +18,6 @@ module.exports = {
     catch (error) {
       console.log(`${error.response.status} ${error.response.statusText}`);
       if (error.response.status == 404) {
-        console.log(JSON.stringify(error.response.data));
         return null;
       }
       console.log(JSON.stringify(error.response.data));
@@ -54,9 +53,7 @@ module.exports = {
     request_url.pathname = `${request_url.pathname}/Patient/${patient.id}`;
 
     console.log("Updating patient " + patient.id);
-    console.log(request_url);
     console.log("PUT " + request_url.href);
-    console.log(patient);
 
     try {
       const response = await http.put(request_url.href, patient);

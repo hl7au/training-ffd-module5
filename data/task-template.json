@@ -1,0 +1,38 @@
+{
+  "resourceType": "Task",
+  "groupIdentifier": {
+    "type": {
+      "coding": [{
+        "code": "PGN",
+        "display": "Placer Group Identifier",
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+      }]
+    },
+    "value": "",
+    "system": "",
+    "assigner": {
+    }
+  },
+  "status": "",
+  "businessStatus": { },
+  "intent": "",
+  "priority": "",
+  "code": {
+    "coding": [{
+      "code": "fulfill",
+      "display": "Fulfill the focal request",
+      "system": "http://hl7.org/fhir/CodeSystem/task-code"
+    }]
+  },
+  "description": "",
+  "focus": { },
+  "for": { },
+  "authoredOn": "",
+  "requester": { },
+  "performerType": [{
+    "coding": [{
+      "system": "http://snomed.info/sct"
+    }]
+  }],
+  "owner": { }
+}
