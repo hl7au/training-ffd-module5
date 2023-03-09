@@ -1,24 +1,23 @@
-const http = require('axios');
+const http = require("axios");
 
-const resourceType = 'Task';
+const resourceType = "Task";
 
-async function readResource (app, id, raise_404) {
-  const req_config = { 
+async function readResource(app, id, raise_404) {
+  const req_config = {
     baseURL: app.locals.fhir_base_url,
-    headers: { 'Accept': 'application/json' }
-  }
+    headers: { Accept: "application/json" },
+  };
 
   const url = `${resourceType}/${id}`;
 
   try {
     console.log(`GET ${req_config.baseURL}/${url}`);
-    
+
     const response = await http.get(url, req_config);
     console.log(`${response.status} ${response.statusText}`);
 
     return response.data;
-  } 
-  catch (error) {
+  } catch (error) {
     if (error.response !== undefined) {
       console.log(`${error.response.status} ${error.response.statusText}`);
 
@@ -31,21 +30,24 @@ async function readResource (app, id, raise_404) {
       console.log(JSON.stringify(error.response.data));
     }
 
-    throw( error );
+    throw error;
   }
 }
 
 async function createResource(app, resource) {
-  if (resource === null) throw ("resource must not be null");
-  if (resource.id !== undefined) 
-    throw ("resource id must be undefined");
-  if (resource.resourceType === undefined || resource.resourceType != resourceType) 
-    throw (`resource resourceType must be '${resourceType}'`);
+  if (resource === null) throw "resource must not be null";
+  if (resource.id !== undefined) throw "resource id must be undefined";
+  if (
+    resource.resourceType === undefined ||
+    resource.resourceType != resourceType
+  )
+    throw `resource resourceType must be '${resourceType}'`;
 
-  const req_config = { 
+  const req_config = {
     baseURL: app.locals.fhir_base_url,
-    headers: { 'Accept': 'application/json' }};
-  
+    headers: { Accept: "application/json" },
+  };
+
   const url = `${resourceType}`;
   console.log(`Creating ${resourceType}`);
 
@@ -54,31 +56,31 @@ async function createResource(app, resource) {
 
     const response = await http.post(url, resource, req_config);
     console.log(`${response.status} ${response.statusText}`);
-    
+
     return response.data;
-  } 
-  catch (error) {
+  } catch (error) {
     if (error.response !== undefined) {
       console.log(`${error.response.status} ${error.response.statusText}`);
       console.log(JSON.stringify(error.response.data));
     }
-    throw( error );
+    throw error;
   }
 }
 
 async function updateResource(app, resource) {
+  if (resource === null) throw "resource must not be null";
+  if (resource.id === undefined || resource.id === null)
+    throw "resource id must not be null";
+  if (
+    resource.resourceType === undefined ||
+    resource.resourceType != resourceType
+  )
+    throw `resource resourceType must be '${resourceType}'`;
 
-  if (resource === null) throw ("resource must not be null");
-  if (resource.id === undefined || resource.id === null) 
-    throw ("resource id must not be null");
-  if (resource.resourceType === undefined || resource.resourceType != resourceType) 
-    throw (`resource resourceType must be '${resourceType}'`);
-
-  const req_config = { 
+  const req_config = {
     baseURL: app.locals.fhir_base_url,
-    headers: { 'Accept': 'application/json' }
-  }
-
+    headers: { Accept: "application/json" },
+  };
 
   console.log(`Updating ${resourceType}/${resource.id}`);
   const url = `${resourceType}/${resource.id}`;
@@ -88,39 +90,40 @@ async function updateResource(app, resource) {
   try {
     const response = await http.put(url, resource, req_config);
     console.log(`${response.status} ${response.statusText}`);
-    
+
     return response.data;
-  } 
-  catch (error) {
+  } catch (error) {
     if (error.response) {
       console.log(`${error.response.status} ${error.response.statusText}`);
       console.log(JSON.stringify(error.response.data));
-    }
-    else if (error.request) {
+    } else if (error.request) {
       // The request was made but no response was received
       // `error.request` is an instance of http.ClientRequest in node.js
       console.log(error.request);
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.log('Error', error.message);
+      console.log("Error", error.message);
     }
     console.log(error.config);
 
-    throw( error );
+    throw error;
   }
 }
 
 async function validateResource(app, resource) {
-  if (resource === null) throw ("resource must not be null");
-  if (resource.id !== undefined) 
-    throw ("resource id must be undefined");
-  if (resource.resourceType === undefined || resource.resourceType != resourceType) 
-    throw (`resource resourceType must be '${resourceType}'`);
+  if (resource === null) throw "resource must not be null";
+  if (resource.id !== undefined) throw "resource id must be undefined";
+  if (
+    resource.resourceType === undefined ||
+    resource.resourceType != resourceType
+  )
+    throw `resource resourceType must be '${resourceType}'`;
 
-  const req_config = { 
-    baseURL: app.locals.fhir_base_url,
-    headers: { 'Accept': 'application/json' }};
-  
+  const req_config = {
+    baseURL: app.locals.tx_base_url,
+    headers: { Accept: "application/json" },
+  };
+
   const url = `${resourceType}/$validate`;
   console.log(`Validating ${resourceType}`);
 
@@ -129,17 +132,20 @@ async function validateResource(app, resource) {
 
     const response = await http.post(url, resource, req_config);
     console.log(`${response.status} ${response.statusText}`);
-    
+
     console.log(JSON.stringify(response.data, null, 2));
 
+    if (response.data.issue.some((i) => i.severity == "error")) {
+      throw new Error(JSON.stringify(response.data, null, 2));
+    }
+
     return response.data;
-  } 
-  catch (error) {
+  } catch (error) {
     if (error.response !== undefined) {
       console.log(`${error.response.status} ${error.response.statusText}`);
       console.log(JSON.stringify(error.response.data, null, 2));
     }
-    throw( error );
+    throw error;
   }
 }
 
@@ -147,5 +153,5 @@ module.exports = {
   read: readResource,
   create: createResource,
   update: updateResource,
-  validate: validateResource
-}
+  validate: validateResource,
+};
