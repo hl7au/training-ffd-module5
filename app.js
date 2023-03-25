@@ -29,6 +29,7 @@ app.use(session(sess));
 // App Authorization Client ID
 
 app.locals.fhir_base_url = 'https://hl7-hapi-au-training-server.australiaeast.cloudapp.azure.com/fhir';
+app.locals.tx_base_url = "https://ontoserver-rw-hl7au.australiaeast.cloudapp.azure.com/fhir";
 
 // *********************************
 
