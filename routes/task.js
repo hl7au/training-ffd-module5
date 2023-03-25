@@ -23,19 +23,20 @@ function buildTask(data) {
       value: data.placer_group_identifier,
       system: "http://ns.electronichealth.net.au/id/hpio-scoped/order/1.0/" + data.placer_organization_hpio,  
       assigner: { 
-        display: data.placer_organization_name }
+        display: data.placer_organization_name 
+      }  
     },
 
-    // TODO: status
+    // TODO: status { status }
     status: data.status,
 
-    // TODO: intent
+    // TODO: intent { 'requested' }
     intent: "order",
 
-    // TODO: priority
+    // TODO: priority { priority }
     priority: data.priority,
 
-    // TODO: code
+    // TODO: code { code: 'fulfill', display: 'Fulfill the focal request', system: 'http://hl7.org/fhir/CodeSystem/task-code' }
     code: {
       coding: [
         {
@@ -46,35 +47,36 @@ function buildTask(data) {
       ]
     },
 
-    // TODO: description
+    // TODO: description { description }
     description: data.description,
 
-    // TODO: focus
+    // TODO: focus { servicerequest_id }
     focus: {
       reference: "ServiceRequest/" + data.servicerequest_id
     },
 
-    // TODO: for
+    // TODO: for { patient_id }
     for: {
       reference: "Patient/" + data.patient_id
     },
 
-    // TODO: authoredOn
+    // TODO: authoredOn { authoredOn }
     authoredOn: data.authoredOn,
 
-    // TODO: requester
+    // TODO: requester { placer_practitionerrole_id }
     requester: {
       reference: "PractitionerRole/" + data.placer_practitionerrole_id
     },
 
-    // TODO: owner
+    // TODO: owner { filler_organization_id }
     owner: {
       reference: "Organization/" + data.filler_organization_id
     }
   }
 
+  // conditionally populate when performerType provided
   if (data.performerType_code) {
-      // TODO: performerType
+      // TODO: performerType { performerType_code, performerType_display }
       task.performerType = [
         {
           coding: [
