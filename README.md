@@ -1,5 +1,4 @@
-# FHIR Fundermentals for Australian Developers Workshop 
-## Module 5: FHIR Information Exchange
+# Module 5: FHIR Information Exchange Workshop Exercises
 This repository provides the initial **FHIR Workflow App** source code for the Module 5 FHIR Information Exchange Workshop exercises as part of the FHIR Fundermentals for Australian Developers course.
 
 ## Create FHIR Workflow App Sandbox
